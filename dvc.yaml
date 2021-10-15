@@ -1,0 +1,70 @@
+stages:
+  download_data:
+    cmd: mkdir -p assets/raw_data && wget "https://drive.google.com/uc?export=download&id=1xAttodHkIfWKbk7LQIXw6niSEmMW0lDZ" -O assets/raw_data/train.csv
+    outs:
+    - assets/raw_data/train.csv
+  split_datasets:
+    cmd: python src/split_datasets.py
+    deps:
+    - assets/raw_data/train.csv
+    - src/split_datasets.py
+    outs:
+    - assets/datasets/
+  create_feature_age:
+    cmd: python src/features/age.py
+    deps:
+    - assets/datasets
+    - src/features/age.py
+    outs:
+    - assets/features/test/age.csv
+    - assets/features/train/age.csv
+  create_feature_fare:
+    cmd: python src/features/fare.py
+    deps:
+    - assets/datasets
+    - src/features/fare.py
+    outs:
+    - assets/features/test/fare.csv
+    - assets/features/train/fare.csv
+  create_feature_parch:
+    cmd: python src/features/parch.py
+    deps:
+    - assets/datasets
+    - src/features/parch.py
+    outs:
+    - assets/features/test/parch.csv
+    - assets/features/train/parch.csv
+  create_feature_pclass:
+    cmd: python src/features/pclass.py
+    deps:
+    - assets/datasets
+    - src/features/pclass.py
+    outs:
+    - assets/features/test/pclass.csv
+    - assets/features/train/pclass.csv
+  create_feature_sibsp:
+    cmd: python src/features/sibsp.py
+    deps:
+    - assets/datasets
+    - src/features/sibsp.py
+    outs:
+    - assets/features/test/sibsp.csv
+    - assets/features/train/sibsp.csv
+  train_model:
+    cmd: python src/train_model.py
+    deps:
+    - assets/features/train
+    - src/train_model.py
+    outs:
+    - assets/models/model.pkl
+    params: 
+    - model
+  evaluate_model:
+    cmd: python src/evaluate_model.py
+    deps:
+    - assets/datasets
+    - assets/features
+    - assets/models/model.pkl
+    - src/evaluate_model.py
+    metrics:
+    - assets/metrics/metrics.json

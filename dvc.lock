@@ -1,0 +1,152 @@
+schema: '2.0'
+stages:
+  split_datasets:
+    cmd: python src/split_datasets.py
+    deps:
+    - path: assets/raw_data/train.csv
+      md5: 61fdd54abdbf6a85b778e937122e1194
+      size: 61194
+    - path: src/split_datasets.py
+      md5: bea3446f9d92814707b854cce157c843
+      size: 832
+    outs:
+    - path: assets/datasets/
+      md5: 2fecf6282c203d6646e2f29f43bb7de1.dir
+      size: 62082
+      nfiles: 4
+  download_data:
+    cmd: mkdir -p assets/raw_data && wget "https://drive.google.com/uc?export=download&id=1xAttodHkIfWKbk7LQIXw6niSEmMW0lDZ"
+      -O assets/raw_data/train.csv
+    outs:
+    - path: assets/raw_data/train.csv
+      md5: 61fdd54abdbf6a85b778e937122e1194
+      size: 61194
+  create_feature_fare:
+    cmd: python src/features/fare.py
+    deps:
+    - path: assets/datasets
+      md5: 2fecf6282c203d6646e2f29f43bb7de1.dir
+      size: 62082
+      nfiles: 4
+    - path: src/features/fare.py
+      md5: 721b4068edceef0bd1177d1680abb363
+      size: 192
+    outs:
+    - path: assets/features/test/fare.csv
+      md5: 2fb3e43ecc4e406a3ecca32d47972a99
+      size: 2221
+    - path: assets/features/train/fare.csv
+      md5: ed0e7e0267111a2e5f7d8763e05e4974
+      size: 6718
+  create_feature_age:
+    cmd: python src/features/age.py
+    deps:
+    - path: assets/datasets
+      md5: 2fecf6282c203d6646e2f29f43bb7de1.dir
+      size: 62082
+      nfiles: 4
+    - path: src/features/age.py
+      md5: 3d1a335befccd5aa17fd58ed9745454d
+      size: 242
+    outs:
+    - path: assets/features/test/age.csv
+      md5: 704cc904ab4c6bfd064c041cc6a39390
+      size: 2566
+    - path: assets/features/train/age.csv
+      md5: f95a8d3e38da074ab6336c9ead7b48ed
+      size: 7800
+  create_feature_parch:
+    cmd: python src/features/parch.py
+    deps:
+    - path: assets/datasets
+      md5: 2fecf6282c203d6646e2f29f43bb7de1.dir
+      size: 62082
+      nfiles: 4
+    - path: src/features/parch.py
+      md5: f00de2a7389511d144ee734360fa5467
+      size: 196
+    outs:
+    - path: assets/features/test/parch.csv
+      md5: f1c64eee6318d45dccd5d7f3a4717029
+      size: 1328
+    - path: assets/features/train/parch.csv
+      md5: 0075e0277896d1b76dc379c242528311
+      size: 3946
+  create_feature_pclass:
+    cmd: python src/features/pclass.py
+    deps:
+    - path: assets/datasets
+      md5: 2fecf6282c203d6646e2f29f43bb7de1.dir
+      size: 62082
+      nfiles: 4
+    - path: src/features/pclass.py
+      md5: dcc0ff268036dca11e3e33b8f6e4562f
+      size: 200
+    outs:
+    - path: assets/features/test/pclass.csv
+      md5: aa16a0b8c3ce30b4178c9de6bf5edb95
+      size: 1329
+    - path: assets/features/train/pclass.csv
+      md5: 316d3a62c6685ba533bd6840e3f371c8
+      size: 3947
+  create_feature_sibsp:
+    cmd: python src/features/sibsp.py
+    deps:
+    - path: assets/datasets
+      md5: 2fecf6282c203d6646e2f29f43bb7de1.dir
+      size: 62082
+      nfiles: 4
+    - path: src/features/sibsp.py
+      md5: 98a00aaebc3a13f385bc0f709bfa0e02
+      size: 196
+    outs:
+    - path: assets/features/test/sibsp.csv
+      md5: 28bf05f659ab891b38201bd355e8bbcd
+      size: 1328
+    - path: assets/features/train/sibsp.csv
+      md5: 00ac9b58a09e59f8f04761d544248a49
+      size: 3946
+  train_model:
+    cmd: python src/train_model.py
+    deps:
+    - path: assets/features/train
+      md5: 93b4ab199b0e0f52f7409e5896e9c4e5.dir
+      size: 26410
+      nfiles: 6
+    - path: src/train_model.py
+      md5: 2b074c4145742d8bdd794120d2cb6a2a
+      size: 761
+    params:
+      params.yaml:
+        model:
+          n_estimators: 100
+          max_depth: 2
+          min_samples_split: 2
+          min_samples_leaf: 1
+          max_leaf_nodes:
+          random_state: 42
+    outs:
+    - path: assets/models/model.pkl
+      md5: 7695b0ad5b9d5f4dd8a5b2db9f071c0b
+      size: 85752
+  evaluate_model:
+    cmd: python src/evaluate_model.py
+    deps:
+    - path: assets/datasets
+      md5: 2fecf6282c203d6646e2f29f43bb7de1.dir
+      size: 62082
+      nfiles: 4
+    - path: assets/features
+      md5: cc407457c53bdf6918d640896e67ff59.dir
+      size: 35235
+      nfiles: 12
+    - path: assets/models/model.pkl
+      md5: 7695b0ad5b9d5f4dd8a5b2db9f071c0b
+      size: 85752
+    - path: src/evaluate_model.py
+      md5: 370e9f4b2cf641f55630533fd2aac8fd
+      size: 1234
+    outs:
+    - path: assets/metrics/metrics.json
+      md5: 070b0ac885fdabf02e34c01352c333c3
+      size: 55

@@ -1,0 +1,10 @@
+version: "3"
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: ./infrastructure/dev/Dockerfile
+      args:
+        USER: "john.doe"
+    volumes:
+      - ./:/home/john.doe/workdir
