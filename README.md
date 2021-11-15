@@ -1,6 +1,6 @@
-# DVC Tempalte
+# DVC Template
 
-This is a repository that can be used as a strating point for projects using DVC
+This is a repository that can be used as a starting point for projects using DVC.
 
 ## Installation
 
